@@ -58,7 +58,7 @@
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
 
-        loadImages({world: "/world.png", marker: "/marker.png"}, function(images) {
+        loadImages({world: "world.png", marker: "marker.png"}, function(images) {
             context.drawImage(images.world, 0, 0);
 
             const pixelPos = getPixelMarkerPos(images.world.width);
