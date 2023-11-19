@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Zoom and Drag</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #canvas {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas" width="2048" height="2048"></canvas>
+
+<script>
+    const worldSize = 2048;
+
+    function getPixelMarkerPos(imageSize) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has("pos")) return null;
+
+        const pos = urlParams.get("pos").split(",");
+        if (pos.length !== 2) return null;
+
+        const ratio = imageSize / worldSize;
+        return [(pos[0] * ratio) + (imageSize / 2), -(pos[1] * ratio) + (imageSize / 2)]
+    }
+
+    function loadImages(sources, callback) {
+        const images = {};
+        let loadedImages = 0;
+        let numImages = 0;
+        // get num of sources
+        for(const src in sources) {
+            numImages++;
+        }
+        for(const src in sources) {
+            images[src] = new Image();
+            images[src].onload = function() {
+                if(++loadedImages >= numImages) {
+                    callback(images);
+                }
+            };
+            images[src].src = sources[src];
+        }
+    }
+
+    function drawMap() {
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        loadImages({world: "/world.png", marker: "/marker.png"}, function(images) {
+            context.drawImage(images.world, 0, 0);
+
+            const pixelPos = getPixelMarkerPos(images.world.width);
+            if (pixelPos == null) return;
+
+            const markerScale = 0.04;
+            const width = images.marker.width * markerScale;
+            const height = images.marker.height * markerScale;
+            context.drawImage(images.marker, pixelPos[0] - (width / 2), pixelPos[1] - height, width, height);
+        });
+    }
+
+    window.onload = function() {
+      drawMap()
+    };
+
+</script>
+
+</body>
+</html>
